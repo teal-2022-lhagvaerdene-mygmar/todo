@@ -7,6 +7,7 @@ function App() {
   const [text, setText] = useState("");
   const [todos, setTodo] = useState([]);
   const [error, setError] = useState("");
+  const [editingText, setEditingText] = useState({});
   function textchange(e) {
     setText(e.target.value);
   }
@@ -51,26 +52,72 @@ function App() {
     newtodos[index].text = editedtext;
     setTodo(newtodos);
   }
+  function editTodoInline(id, index) {
+    const newEditingText = { ...editingText };
+    newEditingText[id] = todos[index].text;
+    setEditingText(newEditingText);
+  }
+  function handleEditingText(id, e) {
+    const newEditingText = { ...editingText };
+    newEditingText[id] = e.target.value;
+    setEditingText(newEditingText);
+  }
+  function cancelEditing(id) {
+    const newEditingText = { ...editingText };
+    newEditingText[id] = undefined;
+    setEditingText(newEditingText);
+  }
+  function updateEditing(id, index) {
+    const newTodo = [...todos];
+    newTodo[index].text = editingText[id];
+    setTodo(newTodo);
+    cancelEditing(id);
+  }
+  function handleKeyUp(e) {
+    if (e.code === "Enter") {
+      addTodo();
+    }
+  }
   return (
     <div>
-      <input value={text} onChange={textchange} />
+      <input value={text} onChange={textchange} onKeyUp={handleKeyUp} />
       <button onClick={addTodo}>nemeh</button>
       {error && <div style={{ color: "red" }}> aldaa : {error}</div>}
       <ul>
         {todos.map((todo1, index) => (
           <li
             key={todo1.id}
-            style={{ textDecoration: todo1.done ? "line-through" : "none" }}
-          >
-            <input
-              type="checkbox"
-              onChange={(e) => handleDoneChange(todo1.id, e)}
-            />
-            {todo1.text}
-            {!todo1.done && (
-              <button onClick={() => editTodoPrompt(todo1.id)}>edit</button>
+            style={{ textDecoration: todo1.done ? "line-through" : "none" }}>
+            {editingText[todo1.id] !== undefined ? (
+              <>
+                <input
+                  value={editingText[todo1.id]}
+                  onChange={(e) => handleEditingText(todo1.id, e)}
+                />
+                <button onClick={() => cancelEditing(todo1.id)}>bolih</button>
+                <button onClick={() => updateEditing(todo1.id, index)}>
+                  save
+                </button>
+              </>
+            ) : (
+              <>
+                <input
+                  type="checkbox"
+                  onChange={(e) => handleDoneChange(todo1.id, e)}
+                />
+                {todo1.text}
+                {!todo1.done && (
+                  <>
+                    <button onClick={() => editTodoInline(todo1.id, index)}>
+                      edit
+                    </button>
+                  </>
+                  //zasah arga-1
+                  // <button onClick={() => editTodoPrompt(todo1.id)}>edit</button>
+                )}
+                <button onClick={() => deleteLi(index)}>delete</button>
+              </>
             )}
-            <button onClick={() => deleteLi(index)}>delete</button>
           </li>
         ))}
       </ul>
