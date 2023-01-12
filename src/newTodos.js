@@ -1,78 +1,55 @@
-export function NewTodos({
-  todos,
-  handleEditingText,
-  cancelEditing,
-  updateEditing,
-  handleDoneChange,
-  editTodoInline,
-  deleteLi,
-  editingText,
-}) {
-  return (
-    <ul>
-      {todos.map((todo1, index) => (
-        <li
-          key={todo1.id}
-          style={{ textDecoration: todo1.done ? "line-through" : "none" }}>
-          {editingText[todo1.id] !== undefined ? (
-            <NormalItem
-              editingText={editingText}
-              todo1={todo1}
-              handleEditingText={handleEditingText}
-              cancelEditing={cancelEditing}
-              updateEditing={updateEditing}
-              index={index}
-            />
-          ) : (
-            <EditimgItem
-              todo1={todo1}
-              handleDoneChange={handleDoneChange}
-              editTodoInline={editTodoInline}
-              deleteLi={deleteLi}
-              index={index}
-            />
-          )}
-        </li>
-      ))}
-    </ul>
-  );
-}
-function NormalItem({
-  editingText,
-  todo1,
-  handleEditingText,
-  cancelEditing,
-  updateEditing,
-  index,
-}) {
-  return (
-    <>
-      <input
-        value={editingText[todo1.id]}
-        onChange={(e) => handleEditingText(todo1.id, e)}
+import { useState } from "react";
+
+export function NewTodos({ todo1, onUpdate, onDelete }) {
+  const [editing, setEditing] = useState(false);
+  const [done, setDone] = useState(false);
+  function handleDoneToggle() {
+    setDone(!done);
+  }
+  function handleSave(text) {
+    onUpdate(text);
+    setEditing();
+  }
+  if (editing) {
+    return (
+      <EditimgItem
+        defaultValue={todo1.text}
+        onCancel={() => setEditing(false)}
+        onSave={handleSave}
       />
-      <button onClick={() => cancelEditing(todo1.id)}>bolih</button>
-      <button onClick={() => updateEditing(todo1.id, index)}>save</button>
-    </>
+    );
+  }
+  return (
+    <NormalItem
+      onToggleDone={handleDoneToggle}
+      done={done}
+      todo1={todo1}
+      onEdit={() => setEditing(true)}
+      onDelete={onDelete}
+    />
   );
 }
-function EditimgItem({
-  todo1,
-  handleDoneChange,
-  editTodoInline,
-  deleteLi,
-  index,
-}) {
+function EditimgItem({ onSave, onCancel, defaultValue }) {
+  const [text, setText] = useState(defaultValue);
   return (
-    <>
-      <input type="checkbox" onChange={(e) => handleDoneChange(todo1.id, e)} />
+    <li>
+      <input value={text} onChange={(e) => setText(e.target.value)} />
+      <button onClick={() => onCancel()}>bolih</button>
+      <button onClick={() => onSave(text)}>save</button>
+    </li>
+  );
+}
+function NormalItem({ done, onToggleDone, todo1, onEdit, onDelete }) {
+  return (
+    <li>
+      <input type="checkbox" onChange={onToggleDone} checked={done} />
       {todo1.text}
       {!todo1.done && (
         <>
-          <button onClick={() => editTodoInline(todo1.id, index)}>edit</button>
+          <button onClick={onEdit}>edit</button>
         </>
       )}
-      <button onClick={() => deleteLi(index)}>delete</button>
-    </>
+      <button onClick={onDelete}>delete</button>
+    </li>
   );
 }

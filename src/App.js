@@ -6,7 +6,6 @@ import { TodoInput } from "./todoInput";
 // import { ErrorInput } from "./errorInput";
 function App() {
   const [todos, setTodo] = useState([]);
-  const [editingText, setEditingText] = useState({});
 
   function handleSave(text) {
     const newTodos = {
@@ -24,55 +23,27 @@ function App() {
       setTodo(newTodo);
     }
   }
-  function handleDoneChange(id, e) {
+  function updateEditing(index, text) {
     const newTodo = [...todos];
-    let index;
-    for (let i = 0; i < todos.length; i++) {
-      if (id === todos[i].id) {
-        index = i;
-        break;
-      }
-    }
-    newTodo[index].done = !newTodo[index].done;
+    newTodo[index].text = text;
     setTodo(newTodo);
-  }
-
-  function editTodoInline(id, index) {
-    const newEditingText = { ...editingText };
-    newEditingText[id] = todos[index].text;
-    setEditingText(newEditingText);
-  }
-  function handleEditingText(id, e) {
-    const newEditingText = { ...editingText };
-    newEditingText[id] = e.target.value;
-    setEditingText(newEditingText);
-  }
-  function cancelEditing(id) {
-    const newEditingText = { ...editingText };
-    newEditingText[id] = undefined;
-    setEditingText(newEditingText);
-  }
-  function updateEditing(id, index) {
-    const newTodo = [...todos];
-    newTodo[index].text = editingText[id];
-    setTodo(newTodo);
-    cancelEditing(id);
   }
 
   return (
     <div>
       <TodoInput onSave={handleSave} />
-
-      <NewTodos
-        todos={todos}
-        handleEditingText={handleEditingText}
-        cancelEditing={cancelEditing}
-        updateEditing={updateEditing}
-        handleDoneChange={handleDoneChange}
-        editTodoInline={editTodoInline}
-        deleteLi={deleteLi}
-        editingText={editingText}
-      />
+      <ul>
+        {todos.map((todo1, index) => {
+          return (
+            <NewTodos
+              key={todo1.id}
+              todo1={todo1}
+              onUpdate={(text) => updateEditing(index, text)}
+              onDelete={() => deleteLi(index)}
+            />
+          );
+        })}
+      </ul>
     </div>
   );
 }
