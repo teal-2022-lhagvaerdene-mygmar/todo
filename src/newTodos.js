@@ -8,7 +8,7 @@ export function NewTodos({ todo1, onUpdate, onDelete }) {
   }
   function handleSave(text) {
     onUpdate(text);
-    setEditing();
+    setEditing(false);
   }
   if (editing) {
     return (
